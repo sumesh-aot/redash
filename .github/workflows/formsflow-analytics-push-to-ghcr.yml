@@ -5,12 +5,6 @@ on:
     branches:
       - gantt
 
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Environment (dev)"
-        required: true
-        default: "dev"
 defaults:
   run:
     shell: bash
@@ -28,7 +22,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: ghcr.io/bcgov/forms-flow-analytics
+          - image: ghcr.io/AOT-Technologies/forms-flow-analytics
             context: .
             dockerfile: Dockerfile
             name: app
