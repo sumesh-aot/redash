@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: ghcr.io/AOT-Technologies/forms-flow-analytics
+          - image: ghcr.io/sumesh-aot/forms-flow-analytics
             context: .
             dockerfile: Dockerfile
             name: app
