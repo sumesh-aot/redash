@@ -61,7 +61,7 @@ export default function Renderer({ data, options }: any) {
   const day = 1000 * 60 * 60 * 24;
   const chartData: Highcharts.Options = {
     title: {
-      text: "Highcharts Gantt With Subtasks",
+      text: "Projects",
     },
     xAxis: [
       {
@@ -95,7 +95,12 @@ export default function Renderer({ data, options }: any) {
 
   return (
     <div className="gantt-chart-visualization-container">
-      <HighchartsReact highcharts={Highcharts} constructorType={"ganttChart"} options={chartData} />
+      <HighchartsReact
+        highcharts={Highcharts}
+        constructorType={"ganttChart"}
+        options={chartData}
+        containerProps={{ className: "gantt-chart-visualization" }}
+      />
     </div>
   );
 }
