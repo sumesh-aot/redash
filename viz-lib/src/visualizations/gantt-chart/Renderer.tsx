@@ -13,18 +13,6 @@ highchartsGantt(Highcharts);
 import "./renderer.less";
 
 function prepareData(data: any) {
-  const colors: any = {
-    "Early Engagement": "#e1ebf3",
-    "Proponent Time: Project Description": "#ccffff",
-    "Readiness Decision": "#c3d7e8",
-    "Process Planning": "#a6c3dd",
-    "Proponent Time: Application Development": "#ccffff",
-    "Application Development & Review": "#faeadc",
-    "Proponent Time: Revised Application": "#ccffff",
-    "Effects Assessment": "#f6d5b9",
-    Recommendation: "#f2c096",
-    "Referral/Decision": "#f2c096",
-  };
   const projects = groupBy(data, (item: any) => item.project);
   const series: Array<any> = [];
   let projectIndex = 0;
@@ -44,7 +32,7 @@ function prepareData(data: any) {
         start: new Date(phase.phase_start).getTime(),
         end: new Date(phase.phase_end).getTime(),
         y: projectIndex,
-        color: colors[phase.phase],
+        color: phase.color,
       });
     });
     series.push(projectSeries);
@@ -65,20 +53,22 @@ export default function Renderer({ data, options }: any) {
     },
     xAxis: [
       {
-        tickInterval: 1000 * 60 * 60 * 24 * 30, // Month
+        tickInterval: day * 30, // Month
+
         labels: {
           format: "{value:%b}",
           style: {
-            fontSize: "8px",
+            fontSize: "10px",
+            width: 150,
+            padding: "5px",
           },
-          autoRotation: [-90],
         },
         min: first.data[0].start - day * 15,
         max: last.data[last.data.length - 1].end + day * 15,
-        currentDateIndicator: false,
+        currentDateIndicator: true,
       },
       {
-        tickInterval: 1000 * 60 * 60 * 24 * 365, // Year
+        tickInterval: day * 365, // Year
         labels: {
           format: "{value:%Y}",
         },
