@@ -54,14 +54,14 @@ export default function Renderer({ data, options }: any) {
     xAxis: [
       {
         tickInterval: day * 30, // Month
-
         labels: {
-          format: "{value:%b}",
+          format: "{value:%m}",
           style: {
-            fontSize: "10px",
+            fontSize: "12px",
             width: 150,
             padding: "5px",
           },
+          step: 1,
         },
         min: first.data[0].start - day * 15,
         max: last.data[last.data.length - 1].end + day * 15,
