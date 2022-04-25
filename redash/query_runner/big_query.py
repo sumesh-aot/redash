@@ -83,12 +83,6 @@ def _get_query_results(jobs, project_id, location, job_id, start_index):
     return query_reply
 
 
-def _get_total_bytes_processed_for_resp(bq_response):
-    # BigQuery hides the total bytes processed for queries to tables with row-level access controls.
-    # For these queries the "totalBytesProcessed" field may not be defined in the response.
-    return int(bq_response.get("totalBytesProcessed", "0"))
-
-
 class BigQuery(BaseQueryRunner):
     should_annotate_query = False
     noop_query = "SELECT 1"
@@ -168,7 +162,7 @@ class BigQuery(BaseQueryRunner):
             job_data["useLegacySql"] = False
 
         response = jobs.query(projectId=self._get_project_id(), body=job_data).execute()
-        return _get_total_bytes_processed_for_resp(response)
+        return int(response["totalBytesProcessed"])
 
     def _get_job_data(self, query):
         job_data = {"configuration": {"query": {"query": query}}}
@@ -243,7 +237,7 @@ class BigQuery(BaseQueryRunner):
         data = {
             "columns": columns,
             "rows": rows,
-            "metadata": {"data_scanned": _get_total_bytes_processed_for_resp(query_reply)},
+            "metadata": {"data_scanned": int(query_reply["totalBytesProcessed"])},
         }
 
         return data
@@ -267,27 +261,13 @@ class BigQuery(BaseQueryRunner):
 
         return columns
 
-    def _get_project_datasets(self, project_id):
-        result = []
-        service = self._get_bigquery_service()
-
-        datasets = service.datasets().list(projectId=project_id).execute()
-        result.extend(datasets.get("datasets", []))
-        nextPageToken = datasets.get('nextPageToken', None)
-
-        while nextPageToken is not None:
-            datasets = service.datasets().list(projectId=project_id, pageToken=nextPageToken).execute()
-            result.extend(datasets.get("datasets", []))
-            nextPageToken = datasets.get('nextPageToken', None)
-
-        return result
-
     def get_schema(self, get_stats=False):
         if not self.configuration.get("loadSchema", False):
             return []
 
+        service = self._get_bigquery_service()
         project_id = self._get_project_id()
-        datasets = self._get_project_datasets(project_id)
+        datasets = service.datasets().list(projectId=project_id).execute()
 
         query_base = """
         SELECT table_schema, table_name, column_name
@@ -297,7 +277,7 @@ class BigQuery(BaseQueryRunner):
 
         schema = {}
         queries = []
-        for dataset in datasets:
+        for dataset in datasets.get("datasets", []):
             dataset_id = dataset["datasetReference"]["datasetId"]
             query = query_base.format(dataset_id=dataset_id)
             queries.append(query)
